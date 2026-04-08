@@ -35,6 +35,7 @@ SOURCES_usb2=(
   "/mnt/Storage/Documents"
 )
 
+
 # -------------------------------------------------
 # Main Code
 # -------------------------------------------------
@@ -119,7 +120,7 @@ if [[ "$backup" == "true" ]]; then
       echo ""
       continue
     fi  
-    console_bip "5"
+    console_bip "3"
     eval "ARRAY=(\"\${${current_array}[@]}\")"
     for SRC in "${ARRAY[@]}"; do
       mkdir -p "/mnt/$pool/$dataset/${SRC#/mnt/}"
@@ -424,6 +425,9 @@ ZFS_scrub() {
     local last_scrub=$(cat "$scrub_file")
     # Calculate difference in days
     diff_days=$(( ( $(date -d "$now" +%s) - $(date -d "$last_scrub" +%s) ) / 86400 ))
+  else
+  echo $now > "$scrub_file"
+  diff_days=0
   fi
 
   if [ "$diff_days" -ge $scrub_delay ]; then
@@ -447,9 +451,9 @@ ZFS_scrub() {
             sleep 60  # check every 60 seconds
         fi
     done
-    echo "$now" > "$scrub_file"
     echo "[$(date '+%H:%M')] Finished to scrub $pool ($disk)" >&2
-  else
+    echo $now > "$scrub_file"
+ else
     echo "[$disk] Pool '$pool', dataset '$dataset' scrubed $diff_days days ago. Skipping."
   fi
 
@@ -458,4 +462,4 @@ return 0
 
 
 # -------------------------------------------------
-main 
+main
